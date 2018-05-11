@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Count</string>
+    <string name="activityPart1">part1</string>
+    <string name="activityPart2">part2</string>
+    <string name="P1_B1">add</string>
+    <string name="P1_B2">step</string>
 </resources>
