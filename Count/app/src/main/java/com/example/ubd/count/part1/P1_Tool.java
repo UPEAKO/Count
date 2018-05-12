@@ -29,14 +29,15 @@ public class P1_Tool {
     public void changeToSecond(String string1,String string2,int sign1) {
         if (sign1 <= 2) {
             String[] stringsAngle = string1.split("//*");
-            String[] stringsLocation = string2.split(",");
+            String[] stringsLocation = string2.split("//*");
             angle.add(Integer.getInteger(stringsAngle[0])*60*60+Integer.getInteger(stringsAngle[1])*60+Integer.getInteger(stringsAngle[2]));
             PointF pointF = new PointF(Float.parseFloat(stringsLocation[0]),Float.parseFloat(stringsLocation[1]));
             location.add(pointF);
         } else {
             String[] strings1 = string1.split("//*");
             angleBegin.add(Integer.getInteger(strings1[0])*60*60+Integer.getInteger(strings1[1])*60+Integer.getInteger(strings1[2]));
-            length.add(Float.parseFloat(string2));
+            if (string2 != null)
+                length.add(Float.parseFloat(string2));
         }
     }
 
@@ -60,6 +61,16 @@ public class P1_Tool {
         }
     }
 
+    private String changeToFormatString(int item) {
+        int a = item%60;
+        int temp = (item-a)%(60*60);
+        int b = temp/60;
+        int c = 0;
+        if (item >= 60*60)
+            c = (item-(temp+a))/3600;
+        return Integer.toString(c)+"'"+Integer.toString(b)+"'"+Integer.toString(a)+"''";
+    }
+
     //计算内角改正后的数值
     private void step1() {
         int angelAll = 0;
@@ -73,6 +84,15 @@ public class P1_Tool {
             angleBegin.set(i,angleBegin.get(i)-angleDeviationItem);
         }
         //然后展示在recyclerView中
+        int agoNum = count1.displayAdapter.displayStrings.size();
+        count1.displayAdapter.displayStrings.clear();
+        for (int i = 0; i < num; i++) {
+            displayStrings strings = new displayStrings(changeToFormatString(angleBegin.get(i)),"");
+            count1.displayAdapter.displayStrings.add(strings);
+        }
+        count1.displayAdapter.notifyItemRangeChanged(0,agoNum);
+        String string = "angel";
+        count1.textView.setText(string);
     }
 
     //计算各方位角，左角姑且先减180
@@ -101,6 +121,10 @@ public class P1_Tool {
     //计算改正后的坐标增量
     private void step4() {
         int num = locationAdd.size();
+        int lenAll = 0;
+        for (int i = 0; i < num; i++) {
+            lenAll+=length.get(i);
+        }
         float deviationXAll = 0;
         float deviationYAll = 0;
         for (int i = 0; i < num; i++) {
@@ -110,7 +134,7 @@ public class P1_Tool {
         float deviationX = deviationXAll - (location.get(1).x - location.get(0).x);
         float deviationY = deviationYAll - (location.get(1).y - location.get(0).y);
         for (int i = 0; i < num; i++) {
-            locationAdd.set(i,new PointF(locationAdd.get(i).x-deviationX/num,locationAdd.get(i).y-deviationY/num));
+            locationAdd.set(i,new PointF(locationAdd.get(i).x-deviationX*length.get(i)/lenAll,locationAdd.get(i).y-deviationY*length.get(i)/lenAll));
         }
     }
 
